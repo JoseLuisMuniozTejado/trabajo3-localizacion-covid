@@ -1,9 +1,7 @@
 package com.practica.ems.covid;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,8 +45,7 @@ public class ContactosCovid {
 	public void setLocalizacion(Localizacion localizacion) {
 		this.localizacion = localizacion;
 	}
-	
-	
+
 
 	public ListaContactos getListaContactos() {
 		return listaContactos;
@@ -95,12 +92,13 @@ public class ContactosCovid {
 		BufferedReader br = null;
 		String datas[] = null, data = null;
 		loadDataFile(fichero, reset, archivo, fr, br, datas, data);
-		
+
 	}
 
 	@SuppressWarnings("resource")
-	public void loadDataFile(String fichero, boolean reset, File archivo, FileReader fr, BufferedReader br, String datas[], String data ) {
+	public void loadDataFile(String fichero, boolean reset, File archivo, FileReader fr, BufferedReader br, String datas[], String data) {
 		try {
+
 			// Apertura del fichero y creacion de BufferedReader para poder
 			// hacer una lectura comoda (disponer del metodo readLine()).
 			archivo = new File(fichero);
@@ -110,53 +108,71 @@ public class ContactosCovid {
 				this.poblacion = new Poblacion();
 				this.localizacion = new Localizacion();
 				this.listaContactos = new ListaContactos();
-			} 
+			}
 			/**
 			 * Lectura del fichero	línea a línea. Compruebo que cada línea 
 			 * tiene el tipo PERSONA o LOCALIZACION y cargo la línea de datos en la 
 			 * lista correspondiente. Sino viene ninguno de esos tipos lanzo una excepción
 			 */
+
 			while ((data = br.readLine()) != null) {
 				datas = dividirEntrada(data.trim());
-				for (String linea : datas) {
-					String datos[] = this.dividirLineaData(linea);
-					if (!datos[0].equals("PERSONA") && !datos[0].equals("LOCALIZACION")) {
-						throw new EmsInvalidTypeException();
-					}
-					if (datos[0].equals("PERSONA")) {
-						if (datos.length != Constantes.MAX_DATOS_PERSONA) {
-							throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
-						}
-						this.poblacion.addPersona(this.crearPersona(datos));
-					}
-					if (datos[0].equals("LOCALIZACION")) {
-						if (datos.length != Constantes.MAX_DATOS_LOCALIZACION) {
-							throw new EmsInvalidNumberOfDataException(
-									"El número de datos para LOCALIZACION es menor de 6" );
-						}
-						PosicionPersona pp = this.crearPosicionPersona(datos);
-						this.localizacion.addLocalizacion(pp);
-						this.listaContactos.insertarNodoTemporal(pp);
-					}
+				String[] datos = dividirPorCadaLinea(datas);
+				if (!datos[0].equals("PERSONA") && !datos[0].equals("LOCALIZACION")) {
+					throw new EmsInvalidTypeException();
 				}
-
+				if (datos[0].equals("PERSONA")) {
+					if (datos.length != Constantes.MAX_DATOS_PERSONA) {
+						throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
+					}
+					this.poblacion.addPersona(this.crearPersona(datos));
+				}
+				if (datos[0].equals("LOCALIZACION")) {
+					if (datos.length != Constantes.MAX_DATOS_LOCALIZACION) {
+						throw new EmsInvalidNumberOfDataException(
+								"El número de datos para LOCALIZACION es menor de 6");
+					}
+					PosicionPersona pp = this.crearPosicionPersona(datos);
+					this.localizacion.addLocalizacion(pp);
+					this.listaContactos.insertarNodoTemporal(pp);
+				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			// En el finally cerramos el fichero, para asegurarnos
-			// que se cierra tanto si todo va bien como si salta
-			// una excepcion.
-			try {
-				if (null != fr) {
-					fr.close();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException(ex);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		} catch (EmsInvalidNumberOfDataException ex) {
+			throw new RuntimeException(ex);
+		} catch (EmsDuplicateLocationException ex) {
+			throw new RuntimeException(ex);
+		} catch (EmsInvalidTypeException ex) {
+			throw new RuntimeException(ex);
+		} catch (EmsDuplicatePersonException ex) {
+			throw new RuntimeException(ex);
+		}
+
+	 catch(
+	Exception e)
+
+	{
+		e.printStackTrace();
+	} finally
+
+	{
+		// En el finally cerramos el fichero, para asegurarnos
+		// que se cierra tanto si todo va bien como si salta
+		// una excepcion.
+		try {
+			if (null != fr) {
+				fr.close();
 			}
+		} catch (Exception e2) {
+			e2.printStackTrace();
 		}
 	}
+}
+
 	public int findPersona(String documento) throws EmsPersonNotFoundException {
 		int pos;
 		try {
@@ -166,6 +182,8 @@ public class ContactosCovid {
 			throw new EmsPersonNotFoundException();
 		}
 	}
+
+
 
 	public int findLocalizacion(String documento, String fecha, String hora) throws EmsLocalizationNotFoundException {
 
@@ -217,9 +235,17 @@ public class ContactosCovid {
 		return cadenas;
 	}
 
+
 	private String[] dividirLineaData(String data) {
 		String cadenas[] = data.split("\\;");
 		return cadenas;
+	}
+	private String[] dividirPorCadaLinea(String[]datas) {
+		String datos[]= null;
+		for (String linea : datas) {
+			 datos= this.dividirLineaData(linea);
+		}
+		return datos;
 	}
 
 	private Persona crearPersona(String[] data) {

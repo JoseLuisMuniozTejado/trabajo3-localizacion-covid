@@ -12,6 +12,7 @@ public class NodoTemporal {
 	private NodoPosicion listaCoordenadas;
 	private FechaHora fecha;
 	private NodoTemporal siguiente;
+
 	
 	
 	public NodoTemporal() {
