@@ -66,7 +66,7 @@ public class ContactosCovid {
 		String datas[] = dividirEntrada(data);
 		for (String linea : datas) {
 			String datos[] = this.dividirLineaData(linea);
-			if (!esPersona(datos) && !esLocalización(datos)) {	
+			if (!esPersona(datos) && !esLocalización(datos)) {
 				throw new EmsInvalidTypeException();
 			}
 			if (esPersona(datos)) {
@@ -139,19 +139,7 @@ public class ContactosCovid {
 				}
 			}
 
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException(ex);
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		} catch (EmsInvalidNumberOfDataException ex) {
-			throw new RuntimeException(ex);
-		} catch (EmsDuplicateLocationException ex) {
-			throw new RuntimeException(ex);
-		} catch (EmsInvalidTypeException ex) {
-			throw new RuntimeException(ex);
-		} catch (EmsDuplicatePersonException ex) {
-			throw new RuntimeException(ex);
-		}
+		} 
 
 	 catch(
 	Exception e)
