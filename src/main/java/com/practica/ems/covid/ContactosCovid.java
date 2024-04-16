@@ -66,16 +66,16 @@ public class ContactosCovid {
 		String datas[] = dividirEntrada(data);
 		for (String linea : datas) {
 			String datos[] = this.dividirLineaData(linea);
-			if (!datos[0].equals("PERSONA") && !datos[0].equals("LOCALIZACION")) {
+			if (!esPersona(datos) && !esLocalización(datos)) {	
 				throw new EmsInvalidTypeException();
 			}
-			if (datos[0].equals("PERSONA")) {
+			if (esPersona(datos)) {
 				if (datos.length != Constantes.MAX_DATOS_PERSONA) {
 					throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
 				}
 				this.poblacion.addPersona(this.crearPersona(datos));
 			}
-			if (datos[0].equals("LOCALIZACION")) {
+			if (esLocalización(datos)) {
 				if (datos.length != Constantes.MAX_DATOS_LOCALIZACION) {
 					throw new EmsInvalidNumberOfDataException("El número de datos para LOCALIZACION es menor de 6");
 				}
@@ -118,16 +118,17 @@ public class ContactosCovid {
 			while ((data = br.readLine()) != null) {
 				datas = dividirEntrada(data.trim());
 				String[] datos = dividirPorCadaLinea(datas);
-				if (!datos[0].equals("PERSONA") && !datos[0].equals("LOCALIZACION")) {
+
+				if (!esPersona(datos) && !esLocalización(datos)) {
 					throw new EmsInvalidTypeException();
 				}
-				if (datos[0].equals("PERSONA")) {
+				if (esPersona(datos)) {
 					if (datos.length != Constantes.MAX_DATOS_PERSONA) {
 						throw new EmsInvalidNumberOfDataException("El número de datos para PERSONA es menor de 8");
 					}
 					this.poblacion.addPersona(this.crearPersona(datos));
 				}
-				if (datos[0].equals("LOCALIZACION")) {
+				if (esLocalización(datos)) {
 					if (datos.length != Constantes.MAX_DATOS_LOCALIZACION) {
 						throw new EmsInvalidNumberOfDataException(
 								"El número de datos para LOCALIZACION es menor de 6");
@@ -194,6 +195,21 @@ public class ContactosCovid {
 		} catch (EmsLocalizationNotFoundException e) {
 			throw new EmsLocalizationNotFoundException();
 		}
+	}
+
+	private boolean esPersona(String[] datos) {
+		if (datos[0].equals("PERSONA")) {
+			return true;
+		}
+		return false;
+
+	}
+	private boolean esLocalización(String[] datos) {
+		if (datos[0].equals("LOCALIZACION")) {
+			return true;
+		}
+		return false;
+
 	}
 
 	public List<PosicionPersona> localizacionPersona(String documento) throws EmsPersonNotFoundException {
